@@ -1,0 +1,41 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "285wlwubm3g8bn6cs92fd8uzc124vvvd",
+    "sessionAttributes": {
+        "lastConfirmedReservation": {
+            "ReservationType": "GetQuoteDetails",
+            "coverageType": "Standard"
+        },
+        "currentQuote": {
+            "ReservationType": "GetQuoteDetails",
+            "coverageType": "Standard"
+        }
+    },
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetCoverageDetails",
+        "slots": {
+            "coverageType": "Standard"
+        },
+        "slotDetails": {
+            "coverageType": {
+                "resolutions": [
+                    {
+                        "value": "Standard"
+                    }
+                ],
+                "originalValue": "standard"
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "please tell me about standard"
+}

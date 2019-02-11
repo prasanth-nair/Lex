@@ -1,0 +1,64 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "DialogCodeHook",
+    "userId": "qp56uptpg6swez0p0m1112p6f84ktg1e",
+    "sessionAttributes": {
+        "currentQuote": "{\"ReservationType\":\"GetQuoteDetails\",\"frequency\":\"once\",\"region\":null,\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":null,\"discountType\":null,\"coverageType\":null}"
+    },
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetQuoteDetails",
+        "slots": {
+            "travelEndDate": null,
+            "coverageType": null,
+            "travelStartDate": null,
+            "discountType": null,
+            "region": "europe",
+            "frequency": "once",
+            "insuredCount": null
+        },
+        "slotDetails": {
+            "travelEndDate": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "coverageType": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "travelStartDate": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "discountType": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "region": {
+                "resolutions": [],
+                "originalValue": "europe"
+            },
+            "frequency": {
+                "resolutions": [
+                    {
+                        "value": "once"
+                    }
+                ],
+                "originalValue": "once"
+            },
+            "insuredCount": {
+                "resolutions": [],
+                "originalValue": null
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "europe"
+}

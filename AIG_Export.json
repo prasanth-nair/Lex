@@ -1,0 +1,556 @@
+{
+  "metadata": {
+    "schemaVersion": "1.0",
+    "importType": "LEX",
+    "importFormat": "JSON"
+  },
+  "resource": {
+    "name": "AIG",
+    "version": "1",
+    "intents": [
+      {
+        "description": "Intent to book a car on StayBooker",
+        "rejectionStatement": {
+          "messages": [
+            {
+              "contentType": "PlainText",
+              "content": "Okay, I have cancelled your reservation in progress."
+            }
+          ]
+        },
+        "name": "BookCar",
+        "version": "8",
+        "fulfillmentActivity": {
+          "codeHook": {
+            "uri": "arn:aws:lambda:us-east-1:875059133929:function:serverlessrepo-lex-book-trip-lexbooktrip-RTMMDXRRAMBC",
+            "messageVersion": "1.0"
+          },
+          "type": "CodeHook"
+        },
+        "sampleUtterances": [
+          "Book a carfrom {PickUpDate} to {ReturnDate} for {PickUpCity}",
+          "Reserve from {PickUpDate} to {ReturnDate} for {PickUpCity}",
+          "Make a car reservation on {PickUpDate}",
+          "i want to book a car for {PickUpCity}"
+        ],
+        "slots": [
+          {
+            "sampleUtterances": [],
+            "slotType": "CarTypeValues",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What type of car would you like to rent?  Our most popular options are economy, midsize, and luxury"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 5,
+            "name": "CarType",
+            "description": "Type of car being reserved."
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.NUMBER",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "How old is the driver for this rental?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 4,
+            "name": "DriverAge",
+            "description": "Age of the driver during the car rental."
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.US_CITY",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "In what city do you need to rent a car?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 1,
+            "name": "PickUpCity",
+            "description": "City in which the car reservation is being made"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.DATE",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What day do you want to start your rental?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 2,
+            "name": "PickUpDate",
+            "description": "Date to start the rental"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.DATE",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What day do you want to return the car?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 3,
+            "name": "ReturnDate",
+            "description": "Date of return.  Should be required when the flight is not one way."
+          }
+        ],
+        "confirmationPrompt": {
+          "messages": [
+            {
+              "contentType": "PlainText",
+              "content": "Okay, I have you down for a {CarType} rental in {PickUpCity} from {PickUpDate} to {ReturnDate}.  Should I book the reservation?"
+            },
+            {
+              "contentType": "PlainText",
+              "content": "The price of this {CarType} rental in {PickUpCity} from {PickUpDate} to {ReturnDate} is [currentReservationPrice] dollars.  Shall I book the reservation?"
+            }
+          ],
+          "maxAttempts": 2
+        },
+        "dialogCodeHook": {
+          "uri": "arn:aws:lambda:us-east-1:875059133929:function:serverlessrepo-lex-book-trip-lexbooktrip-RTMMDXRRAMBC",
+          "messageVersion": "1.0"
+        },
+        "conclusionStatement": {
+          "messages": [
+            {
+              "groupNumber": 1,
+              "contentType": "PlainText",
+              "content": "your car is reserved for {PickUpCity}"
+            }
+          ]
+        }
+      },
+      {
+        "name": "GetCoverageDetails",
+        "version": "8",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "i want to know about {coverageType}",
+          "Please tell me more about {coverageType}"
+        ],
+        "slots": [
+          {
+            "sampleUtterances": [],
+            "slotType": "CoverageType",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Optional",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "Would you like to know more about coverage options"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 1,
+            "name": "coverageType"
+          }
+        ]
+      },
+      {
+        "description": "Intent to book a hotel on StayBooker",
+        "rejectionStatement": {
+          "messages": [
+            {
+              "contentType": "PlainText",
+              "content": "Okay, I have cancelled your reservation in progress."
+            }
+          ]
+        },
+        "name": "BookHotel",
+        "version": "1",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "Book a hotel",
+          "I want a make hotel reservations",
+          "Book a {Nights} night stay in {Location}"
+        ],
+        "slots": [
+          {
+            "slotType": "AMAZON.DATE",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What day do you want to check in?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 2,
+            "name": "CheckInDate",
+            "description": "Date of check-in"
+          },
+          {
+            "slotType": "AMAZON.US_CITY",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What city will you be staying in?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 1,
+            "name": "Location",
+            "description": "Location of the city in which the hotel is located"
+          },
+          {
+            "slotType": "AMAZON.NUMBER",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "How many nights will you be staying?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 3,
+            "name": "Nights",
+            "description": "Number of nights in the hotel stay."
+          },
+          {
+            "slotType": "RoomTypeValues",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What type of room would you like, queen, king or deluxe?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 4,
+            "name": "RoomType",
+            "description": "Enumeration of types of rooms that are offered by a hotel."
+          }
+        ],
+        "confirmationPrompt": {
+          "messages": [
+            {
+              "contentType": "PlainText",
+              "content": "Okay, I have you down for a {Nights} night stay in {Location} starting {CheckInDate}.  Shall I book the reservation?"
+            },
+            {
+              "contentType": "PlainText",
+              "content": "The price of this {Nights} night stay in {Location} from {CheckInDate} is [currentReservationPrice] dollars.  Shall I book the reservation?"
+            }
+          ],
+          "maxAttempts": 2
+        }
+      },
+      {
+        "name": "GetQuoteDetails",
+        "version": "4",
+        "fulfillmentActivity": {
+          "type": "ReturnIntent"
+        },
+        "sampleUtterances": [
+          "I would like to get an insurance quote",
+          "i want insurance",
+          "can you get me a quote"
+        ],
+        "slots": [
+          {
+            "sampleUtterances": [],
+            "slotType": "CoverageType",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "What type of coverage would you like?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 7,
+            "name": "coverageType"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "discountType",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "Do you qualify for couple or family discount"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 6,
+            "name": "discountType"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "frequencyTypes",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "How frequently do you travel throughout the year"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 1,
+            "name": "frequency"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.NUMBER",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "How many members would you like to include in the policy"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 5,
+            "name": "insuredCount"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "TravelRegion",
+            "slotTypeVersion": "1",
+            "slotConstraint": "Required",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "Do you travel around Europe or around the world?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 2,
+            "name": "region"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.DATE",
+            "slotConstraint": "Optional",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "When will you return back? "
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 4,
+            "name": "travelEndDate"
+          },
+          {
+            "sampleUtterances": [],
+            "slotType": "AMAZON.DATE",
+            "slotConstraint": "Optional",
+            "valueElicitationPrompt": {
+              "messages": [
+                {
+                  "contentType": "PlainText",
+                  "content": "When are you planning to travel?"
+                }
+              ],
+              "maxAttempts": 2
+            },
+            "priority": 3,
+            "name": "travelStartDate"
+          }
+        ]
+      }
+    ],
+    "slotTypes": [
+      {
+        "description": "Frequency by which the person travel for the year",
+        "name": "frequencyTypes",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "once",
+            "synonyms": []
+          },
+          {
+            "value": "two or more",
+            "synonyms": []
+          },
+          {
+            "value": "full year",
+            "synonyms": []
+          }
+        ],
+        "valueSelectionStrategy": "ORIGINAL_VALUE"
+      },
+      {
+        "description": "Enumeration representing possible types of a hotel room",
+        "name": "RoomTypeValues",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "deluxe"
+          },
+          {
+            "value": "queen"
+          },
+          {
+            "value": "king"
+          }
+        ],
+        "valueSelectionStrategy": "ORIGINAL_VALUE"
+      },
+      {
+        "description": "Enumeration representing possible types of cars available for rental",
+        "name": "CarTypeValues",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "standard"
+          },
+          {
+            "value": "full size"
+          },
+          {
+            "value": "midsize"
+          },
+          {
+            "value": "luxury"
+          },
+          {
+            "value": "economy"
+          },
+          {
+            "value": "minivan"
+          }
+        ],
+        "valueSelectionStrategy": "ORIGINAL_VALUE"
+      },
+      {
+        "description": "Types of eligible discounts",
+        "name": "discountType",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "couple",
+            "synonyms": [
+              "couple",
+              "parner"
+            ]
+          },
+          {
+            "value": "family",
+            "synonyms": []
+          }
+        ],
+        "valueSelectionStrategy": "TOP_RESOLUTION"
+      },
+      {
+        "description": "The region across which the person travels during the coverage period",
+        "name": "TravelRegion",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "world wide",
+            "synonyms": []
+          },
+          {
+            "value": "europe",
+            "synonyms": []
+          }
+        ],
+        "valueSelectionStrategy": "ORIGINAL_VALUE"
+      },
+      {
+        "description": "Types of insurance coverage that are offered to clients",
+        "name": "CoverageType",
+        "version": "1",
+        "enumerationValues": [
+          {
+            "value": "Standard",
+            "synonyms": []
+          },
+          {
+            "value": "Exceptional",
+            "synonyms": []
+          },
+          {
+            "value": "Reduced",
+            "synonyms": []
+          }
+        ],
+        "valueSelectionStrategy": "TOP_RESOLUTION"
+      }
+    ],
+    "voiceId": "Salli",
+    "childDirected": false,
+    "locale": "en-US",
+    "idleSessionTTLInSeconds": 600,
+    "description": "Bot to make reservations necessary for a visit to a city",
+    "clarificationPrompt": {
+      "messages": [
+        {
+          "contentType": "PlainText",
+          "content": "Sorry, what can I help you with?"
+        }
+      ],
+      "maxAttempts": 2
+    },
+    "abortStatement": {
+      "messages": [
+        {
+          "contentType": "PlainText",
+          "content": "Sorry, I am not able to assist at this time"
+        }
+      ]
+    }
+  }
+}

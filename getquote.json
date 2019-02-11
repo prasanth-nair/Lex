@@ -1,0 +1,70 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "66c5r2ixzp6hp16szkg246ajef9js038",
+    "sessionAttributes": {},
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetQuoteDetails",
+        "slots": {
+            "travelEndDate": "2019-02-15",
+            "coverageType": "Standard",
+            "travelStartDate": "2019-02-11",
+            "discountType": "couple",
+            "region": "europe",
+            "frequency": "once",
+            "insuredCount": "2"
+        },
+        "slotDetails": {
+            "travelEndDate": {
+                "resolutions": [],
+                "originalValue": "next friday"
+            },
+            "coverageType": {
+                "resolutions": [
+                    {
+                        "value": "Standard"
+                    }
+                ],
+                "originalValue": "standard"
+            },
+            "travelStartDate": {
+                "resolutions": [],
+                "originalValue": "next monday"
+            },
+            "discountType": {
+                "resolutions": [
+                    {
+                        "value": "couple"
+                    }
+                ],
+                "originalValue": "couple"
+            },
+            "region": {
+                "resolutions": [],
+                "originalValue": "europe"
+            },
+            "frequency": {
+                "resolutions": [
+                    {
+                        "value": "once"
+                    }
+                ],
+                "originalValue": "once"
+            },
+            "insuredCount": {
+                "resolutions": [],
+                "originalValue": "2"
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "standard"
+}
