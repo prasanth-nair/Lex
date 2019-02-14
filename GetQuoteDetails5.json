@@ -1,10 +1,10 @@
 {
     "messageVersion": "1.0",
-    "invocationSource": "DialogCodeHook",
+    "invocationSource": "FulfillmentCodeHook",
     "userId": "nm6yng2rd7ckqvqw16hzlq6bfhcrzxwb",
     "sessionAttributes": {
-        "currentQuote": "{\"intentName\":\"GetCoverageDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}",
-        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}"
+        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":\"Standard\",\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetCoverageDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}"
     },
     "requestAttributes": null,
     "bot": {
@@ -16,12 +16,12 @@
     "currentIntent": {
         "name": "GetQuoteDetails",
         "slots": {
-            "travelEndDate": "2019-03-28",
+            "travelEndDate": null,
             "coverageType": "Standard",
-            "travelStartDate": "2019-02-28",
+            "travelStartDate": null,
             "discountType": "couple",
             "region": "europe",
-            "frequency": "single",
+            "frequency": "once",
             "insuredCount": "2"
         },
         "slotDetails": {

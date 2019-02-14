@@ -80,7 +80,7 @@ function isValidDate(date) {
 
 
 function isValidFrequency(frequency) {
-    const frequencyTypes = ['once', 'all year'];
+    const frequencyTypes = ['single', 'all year'];
     return (frequencyTypes.indexOf(frequency.toLowerCase()) > -1);
 }
 
@@ -255,7 +255,7 @@ function processStartIntent(intentRequest, callback) {
 /*****************************************************************************/
 function processGetQuoteDetails(intentRequest, callback) {
 
-
+    var rates;
     const slots = intentRequest.currentIntent.slots;
     const sessionAttributes = intentRequest.sessionAttributes;
 
@@ -267,10 +267,10 @@ function processGetQuoteDetails(intentRequest, callback) {
     const insuredAges = intentRequest.currentIntent.slots.insuredAges;
     const discountType = intentRequest.currentIntent.slots.discountType;
     const coverageType = intentRequest.currentIntent.slots.coverageType;
+    const confirmationStatus = intentRequest.currentIntent.confirmationStatus;
 
 
     sessionAttributes.previousQuote = sessionAttributes.currentQuote;
-
     sessionAttributes.currentQuote = session.setCache('GetQuoteDetails',
         frequency,
         region,
@@ -283,9 +283,14 @@ function processGetQuoteDetails(intentRequest, callback) {
         '');
 
 
+
+    /****** DialogCodeHook --> This flow is executed for all required slots   ******/
+
     // If the Code Hook is dialog flow, validate the slots. If there are any wrong slot values, re-elicitate the slot
 
     if (intentRequest.invocationSource === 'DialogCodeHook') {
+
+        //Validate if the slots provided by use is valid
         const validationResult = validateQuoteParams(intentRequest.currentIntent.slots);
         if (!validationResult.isValid) {
             const slots = intentRequest.currentIntent.slots;
@@ -298,42 +303,99 @@ function processGetQuoteDetails(intentRequest, callback) {
             ));
             return;
         }
+
+        // if the client selects a sigle trip, elicit the start and end dates
+
+        if (frequency.toLowerCase() == 'single' && !travelStartDate) {
+            callback(elicitSlot(sessionAttributes,
+                `GetQuoteDetails`,
+                slots,
+                `travelStartDate`,
+                { contentType: 'PlainText', content: `Please select the start date for your travel` }
+            ));
+            return;
+        }
+
+        if (frequency.toLowerCase() == 'single' && travelStartDate && !travelEndDate) {
+            callback(elicitSlot(sessionAttributes,
+                `GetQuoteDetails`,
+                slots,
+                `travelEndDate`,
+                { contentType: 'PlainText', content: `Please select the return date for your travel` }
+            ));
+            return;
+        }
+        // Delegate to Lex to select the next course of action. i.e. elicit next required slot by Lex
+
+        console.log('delete request')
         callback(delegate(sessionAttributes, intentRequest.currentIntent.slots));
         return;
     }
 
 
-    // If the Code Hook is fullfilment flow, calculate the quote based on params
-    //coverage type is an optional slot. If that is not provided, ask for it, along with rates
 
-    var rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, discountType);
-    var ratesNotification = 'You have 3 options to choose from. The rates for Reduced coverage is $' + rates.reducedRate +
-        '. Our most poular Standard coverage is $' + rates.standardRate + ' and our Exception coverage is available for $' + rates.exceptionalRate +
-        'Please select the coverage you wish to take.'
 
-    console.log('coverage type -> ' + coverageType)
 
-    if (!coverageType) {
-        callback(elicitSlot(sessionAttributes,
-            intentRequest.currentIntent.name,
-            slots,
-            `coverageType`,
-            { contentType: 'PlainText', content: ratesNotification }
-            // JSON.stringify(ratesNotification)
-        ));
+    /****** FulfillmentCodeHook --> This flow is executed after all required slots are filled   ******/
+
+
+    if (intentRequest.invocationSource === 'FulfillmentCodeHook') {
+        // rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, discountType);
+
+
+        // if all the slots needed for coverage calculation is provided, 
+        // then only calculate the rate and ask for coverage type
+
+        if (frequency && region && insuredCount && discountType) {
+            rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, discountType);
+            var ratesNotification = 'You have 3 options to choose from. The rates for Reduced coverage is $' + rates.reducedRate +
+                '. Our most poular Standard coverage is $' + rates.standardRate + ' and our Exception coverage is available for $' + rates.exceptionalRate +
+                'Please select the coverage you wish to take.'
+
+
+            if (!coverageType) {
+                callback(elicitSlot(sessionAttributes,
+                    intentRequest.currentIntent.name,
+                    slots,
+                    `coverageType`,
+                    { contentType: 'PlainText', content: ratesNotification }
+                    // JSON.stringify(ratesNotification)
+                ));
+
+            }
+        }
+
+
+        switch (confirmationStatus) {
+            case 'None':
+                //TODO -> FIX THE RATES IN MESSAGE
+                callback(confirmIntent(sessionAttributes,
+                    intentRequest.currentIntent.name,
+                    slots,
+                    {
+                        contentType: 'PlainText',
+                        content: `You have selected ${coverageType} coverage for a total premium of €${rates.standardRate}. Please confirm `
+                    }));
+                break;
+            case 'Confirmed':
+                callback(close(sessionAttributes, 'Fulfilled',
+                    {
+                        contentType: 'PlainText',
+                        content: 'Thank you. We have issued a new policy. The details will be sent to you by email.'
+                    }));
+                break;
+            case 'Denied':
+                callback(close(sessionAttributes, 'Fulfilled',
+                    {
+                        contentType: 'PlainText',
+                        content: 'Thank you for choosing AIG. Have a nice day!'
+                    })); break;
+            default:
+                break;
+        }
 
     }
 
-
-    // delete sessionAttributes.currentReservationPrice;
-    // delete sessionAttributes.currentReservation;
-
-
-    callback(close(sessionAttributes, 'Fulfilled',
-        {
-            contentType: 'PlainText', content: 'Thank you. We have issued a new policy. The details will be sent to you by email.'
-            // + 'Is there anything else we can do for you.'
-        }));
 
 
 }
@@ -421,7 +483,7 @@ function processGetCoverageDetails(intentRequest, callback) {
             Plans = 'The Travel Guard Exceptional plan is our best travel insurance plan with global travel assistance and access to 24/7 travel assistance services.'
             break;
         default:
-            Plans = 'We currently do not offer this type of coverage. Please call help desk for more details'
+            Plans = 'We currently do not offer this type of coverage.'
     }
 
     Plans = Plans + ' Please select the coverage you wish to take.'
