@@ -33,9 +33,7 @@ module.exports = {
             suggestedRegion: suggestedRegion
         }));
         return this.sessionCache
-
     }
-
 }
 
 // module.exports = session;

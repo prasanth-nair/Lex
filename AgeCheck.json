@@ -1,0 +1,31 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "fmmp4nqejp3ep9c74xufwpy2w6cogxgo",
+    "sessionAttributes": {
+        "currentQuote": "{\"intentName\":\"GetMemberDetails\",\"frequency\":\"yearly\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"insuredAges\":[\"10\"],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"yearly\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}"
+    },
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetMemberDetails",
+        "slots": {
+            "age": "20"
+        },
+        "slotDetails": {
+            "age": {
+                "resolutions": [],
+                "originalValue": "20"
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "20"
+}

@@ -1,10 +1,10 @@
 {
     "messageVersion": "1.0",
     "invocationSource": "DialogCodeHook",
-    "userId": "nm6yng2rd7ckqvqw16hzlq6bfhcrzxwb",
+    "userId": "zkbpul97fy3eyq3jpv0js0y9umpf7n7a",
     "sessionAttributes": {
-        "currentQuote": "{\"intentName\":null,\"frequency\":null,\"region\":null,\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":null}",
-        "previousQuote": "{\"intentName\":null,\"frequency\":null,\"region\":null,\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":null}"
+        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":\"2019-02-25\",\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":null,\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}"
     },
     "requestAttributes": null,
     "bot": {
@@ -16,18 +16,18 @@
     "currentIntent": {
         "name": "GetQuoteDetails",
         "slots": {
-            "travelEndDate": null,
+            "travelEndDate": "XXXX-02-29",
             "coverageType": null,
-            "travelStartDate": null,
+            "travelStartDate": "2019-02-25",
             "discountType": null,
             "region": null,
-            "insuredCount": null,
-            "frequency": "once"
+            "frequency": "single",
+            "insuredCount": null
         },
         "slotDetails": {
             "travelEndDate": {
                 "resolutions": [],
-                "originalValue": null
+                "originalValue": "2/29"
             },
             "coverageType": {
                 "resolutions": [],
@@ -35,7 +35,7 @@
             },
             "travelStartDate": {
                 "resolutions": [],
-                "originalValue": null
+                "originalValue": "2/20 to 2/25"
             },
             "discountType": {
                 "resolutions": [],
@@ -45,21 +45,17 @@
                 "resolutions": [],
                 "originalValue": null
             },
+            "frequency": {
+                "resolutions": [],
+                "originalValue": "single"
+            },
             "insuredCount": {
                 "resolutions": [],
                 "originalValue": null
-            },
-            "frequency": {
-                "resolutions": [
-                    {
-                        "value": "once"
-                    }
-                ],
-                "originalValue": "once"
             }
         },
         "confirmationStatus": "None",
         "sourceLexNLUIntentInterpretation": null
     },
-    "inputTranscript": "once"
+    "inputTranscript": "2/29"
 }
