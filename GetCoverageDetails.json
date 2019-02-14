@@ -1,16 +1,10 @@
 {
     "messageVersion": "1.0",
     "invocationSource": "FulfillmentCodeHook",
-    "userId": "285wlwubm3g8bn6cs92fd8uzc124vvvd",
+    "userId": "ys7bxt265111c0o28um4zk9py0j18ear",
     "sessionAttributes": {
-        "lastConfirmedReservation": {
-            "ReservationType": "GetQuoteDetails",
-            "coverageType": "Standard"
-        },
-        "currentQuote": {
-            "ReservationType": "GetQuoteDetails",
-            "coverageType": "Standard"
-        }
+        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}"
     },
     "requestAttributes": null,
     "bot": {
@@ -37,5 +31,5 @@
         "confirmationStatus": "None",
         "sourceLexNLUIntentInterpretation": null
     },
-    "inputTranscript": "please tell me about standard"
+    "inputTranscript": "i want to know about standard"
 }

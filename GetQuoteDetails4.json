@@ -1,0 +1,69 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "ys7bxt265111c0o28um4zk9py0j18ear",
+    "sessionAttributes": {
+        "currentQuote": "{\"intentName\":\"GetCoverageDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":\"couple\",\"coverageType\":null,\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetCoverageDetails\",\"frequency\":\"once\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"2\",\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}"
+    },
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetQuoteDetails",
+        "slots": {
+            "travelEndDate": null,
+            "coverageType": null,
+            "travelStartDate": null,
+            "discountType": "couple",
+            "region": "europe",
+            "frequency": "once",
+            "insuredCount": "2"
+        },
+        "slotDetails": {
+            "travelEndDate": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "coverageType": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "travelStartDate": {
+                "resolutions": [],
+                "originalValue": null
+            },
+            "discountType": {
+                "resolutions": [
+                    {
+                        "value": "couple"
+                    }
+                ],
+                "originalValue": "couple"
+            },
+            "region": {
+                "resolutions": [],
+                "originalValue": "europe"
+            },
+            "frequency": {
+                "resolutions": [
+                    {
+                        "value": "once"
+                    }
+                ],
+                "originalValue": "once"
+            },
+            "insuredCount": {
+                "resolutions": [],
+                "originalValue": "2"
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "couple"
+}

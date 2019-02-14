@@ -1,7 +1,8 @@
-lambda-local -l aigquote.js -e payload.json
+lambda-local -l aigquote.js -e GetCoverageDetails.json
 
-lambda-local -l aigquote.js -e getquote.json
+lambda-local -l aigquote.js -e GetQuoteDetails1.json
 
+lambda-local -l aigquote.js -e StartIntent.json
 
 
 

@@ -1,4 +1,5 @@
 'use strict';
+const session = require('./session');
 
 /**
  *  Ths is a bot for collecting the user information for providing an insurance
@@ -7,6 +8,7 @@
  */
 
 // --------------- Helpers that build all of the responses -----------------------
+
 
 function elicitSlot(sessionAttributes, intentName, slots, slotToElicit, message) {
     return {
@@ -56,6 +58,9 @@ function delegate(sessionAttributes, slots) {
 
 // ---------------- Helper Functions --------------------------------------------------
 
+
+
+
 // Calculation for quote value based on params
 function generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, discountType) {
 
@@ -69,13 +74,45 @@ function generateQuote(frequency, region, travelStartDate, travelEndDate, insure
 
 
 
-
-
-
-
 function isValidDate(date) {
     return !(isNaN(Date.parse(date)));
 }
+
+
+function isValidFrequency(frequency) {
+    const frequencyTypes = ['once', 'all year'];
+    return (frequencyTypes.indexOf(frequency.toLowerCase()) > -1);
+}
+
+
+function isValidRegion(region) {
+    const regionTypes = ['europe', 'world'];
+    const europeanCountries = ['russia', 'germany', 'u.k.', 'france', 'italy', 'spain', 'ukraine', 'poland',
+        'romania', 'netherlands', 'belgium', 'greece', 'czech republic', 'portugal',
+        'sweden', 'hungary', 'belarus', 'austria', 'serbia', 'switzerland', 'bulgaria',
+        'denmark', 'finland', 'slovakia', 'norway', 'ireland', 'croatia', 'moldova',
+        'bosnia & herzegovina', 'albania', 'lithuania', 'tfyr macedonia', 'slovenia',
+        'latvia', 'estonia', 'montenegro', 'luxembourg', 'malta', 'iceland', 'andorra',
+        'monaco', 'liechtenstein', 'san marino', 'holy see'];
+    return (regionTypes.indexOf(region.toLowerCase()) > -1);
+}
+
+
+function isValidInsuredCount(insuredCount) {
+    return !(isNaN(insuredCount));
+}
+
+
+function isValidCoverageType(coverageType) {
+    const coverageTypes = ['reduced', 'standard', 'exceptional'];
+    return (coverageTypes.indexOf(coverageType.toLowerCase()) > -1);
+}
+
+function isValidDiscountType(discountType) {
+    const discountTypes = ['couple', 'family'];
+    return (discountTypes.indexOf(discountType.toLowerCase()) > -1);
+}
+
 
 function getDayDifference(earlierDate, laterDate) {
     const laterDateInDaysSinceEpoch = new Date(laterDate).getTime() / 86400000;
@@ -99,14 +136,6 @@ function buildValidationResult(isValid, violatedSlot, messageContent) {
 
 //***************** validation for Dialog Flow for intents ***********************************/
 
-// Validation rules for GetQuoteDetails
-
-
-function isValidCoverageType(coverageType) {
-    const coverageTypes = ['reduced', 'standard', 'exceptional'];
-    return (coverageTypes.indexOf(coverageType.toLowerCase()) > -1);
-}
-
 // Validation rules for GetCoverageDetails
 
 
@@ -116,29 +145,18 @@ function validateQuoteParams(slots) {
     const travelStartDate = slots.travelStartDate;
     const travelEndDate = slots.travelEndDate;
     const insuredCount = slots.insuredCount;
-    const driverAge = slots.DriverAge;
     const discountType = slots.discountType;
     const coverageType = slots.coverageType;
-    var suggestedRegion;
 
+    if (frequency) {
+        if (!isValidFrequency(frequency)) {
+            return buildValidationResult(false, 'frequency', 'I did not understand how frequently you travel.  Please suggest if you like coverage for single trip or full year trip?');
+        }
+    }
 
-    const europeanCountries = ['russia', 'germany', 'u.k.', 'france', 'italy', 'spain', 'ukraine', 'poland',
-        'romania', 'netherlands', 'belgium', 'greece', 'czech republic', 'portugal',
-        'sweden', 'hungary', 'belarus', 'austria', 'serbia', 'switzerland', 'bulgaria',
-        'denmark', 'finland', 'slovakia', 'norway', 'ireland', 'croatia', 'moldova',
-        'bosnia & herzegovina', 'albania', 'lithuania', 'tfyr macedonia', 'slovenia',
-        'latvia', 'estonia', 'montenegro', 'luxembourg', 'malta', 'iceland', 'andorra',
-        'monaco', 'liechtenstein', 'san marino', 'holy see'];
-
-
-    //  select the region based on the country listed
     if (region) {
-        if (region.toLowerCase != 'europe' || region.toLowerCase != 'world') {
-            if (europeanCountries.indexOf(region.toLowerCase()) > -1) {
-                suggestedRegion = 'europe'
-            } else {
-                suggestedRegion = 'world'
-            }
+        if (!isValidRegion(region)) {
+            return buildValidationResult(false, 'region', 'I did not understand your travel destination.  Please suggest if you are travelling within Europe or or world wide?');
         }
     }
 
@@ -167,6 +185,27 @@ function validateQuoteParams(slots) {
         // }
     }
 
+
+    if (insuredCount) {
+        if (!isValidInsuredCount(insuredCount)) {
+            return buildValidationResult(false, 'insuredCount', 'I did not understand how many members are in your party.  Please provide the number of members in your travel group?');
+        }
+    }
+
+
+    if (coverageType) {
+        if (!isValidCoverageType(coverageType)) {
+            return buildValidationResult(false, 'coverageType', 'I did not understand your coverage choice.  Please select if you would like Reduced, Standard or Exceptional?');
+        }
+    }
+
+    if (discountType) {
+        if (!isValidDiscountType(discountType)) {
+            return buildValidationResult(false, 'discountType', 'I did not understand your discount selection.  Please suggest if you qualify for couple or family discount?');
+        }
+    }
+
+
     return { isValid: true };
 
 
@@ -175,38 +214,73 @@ function validateQuoteParams(slots) {
 // --------------- Process Intents -----------------------
 
 
+
+/*****************************************************************************/
+/*  This section handles the intent  - StartIntent                           */
+/*****************************************************************************/
+function processStartIntent(intentRequest, callback) {
+
+    const slots = intentRequest.currentIntent.slots;
+    const sessionAttributes = intentRequest.sessionAttributes;
+
+    sessionAttributes.currentQuote = session.init();
+    sessionAttributes.previousQuote = session.init();
+
+
+    callback(elicitSlot(sessionAttributes,
+        `GetQuoteDetails`,
+
+        {
+            "travelEndDate": null,
+            "coverageType": null,
+            "travelStartDate": null,
+            "discountType": null,
+            "region": null,
+            "frequency": null,
+            "insuredCount": null
+        },
+        `frequency`,
+        {
+            contentType: 'PlainText', content: 'Welcome to the AIG Travel chat bot. In order to process your quote,' +
+                ' please suggest if this request is for a single trip or an year round trip.'
+        }
+    ));
+
+}
+
+
+
 /*****************************************************************************/
 /*  This section handles the intent  - GetQuoteDetails                       */
 /*****************************************************************************/
-
-
 function processGetQuoteDetails(intentRequest, callback) {
 
 
     const slots = intentRequest.currentIntent.slots;
+    const sessionAttributes = intentRequest.sessionAttributes;
+
     const frequency = intentRequest.currentIntent.slots.frequency;
     const region = intentRequest.currentIntent.slots.region;
     const travelStartDate = intentRequest.currentIntent.slots.travelStartDate;
     const travelEndDate = intentRequest.currentIntent.slots.travelEndDate;
     const insuredCount = intentRequest.currentIntent.slots.insuredCount;
+    const insuredAges = intentRequest.currentIntent.slots.insuredAges;
     const discountType = intentRequest.currentIntent.slots.discountType;
     const coverageType = intentRequest.currentIntent.slots.coverageType;
 
-    const sessionAttributes = intentRequest.sessionAttributes;
 
+    sessionAttributes.previousQuote = sessionAttributes.currentQuote;
 
-    // Load confirmation history and track the current reservation.
-    const quote = String(JSON.stringify({
-        ReservationType: 'GetQuoteDetails',
-        frequency: frequency,
-        region: region,
-        travelStartDate: travelStartDate,
-        travelEndDate: travelEndDate,
-        insuredCount: insuredCount,
-        discountType: discountType,
-        coverageType: coverageType
-    }));
-    sessionAttributes.currentQuote = quote;
+    sessionAttributes.currentQuote = session.setCache('GetQuoteDetails',
+        frequency,
+        region,
+        travelStartDate,
+        travelEndDate,
+        insuredCount,
+        insuredAges,
+        discountType,
+        coverageType,
+        '');
 
 
     // If the Code Hook is dialog flow, validate the slots. If there are any wrong slot values, re-elicitate the slot
@@ -224,7 +298,6 @@ function processGetQuoteDetails(intentRequest, callback) {
             ));
             return;
         }
-        sessionAttributes.currentQuote = quote;
         callback(delegate(sessionAttributes, intentRequest.currentIntent.slots));
         return;
     }
@@ -235,8 +308,10 @@ function processGetQuoteDetails(intentRequest, callback) {
 
     var rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, discountType);
     var ratesNotification = 'You have 3 options to choose from. The rates for Reduced coverage is $' + rates.reducedRate +
-        '. Our most poular Standard coverage is $' + rates.standardRate + ' and our Exception coverage is available for $' + rates.exceptionalRate
+        '. Our most poular Standard coverage is $' + rates.standardRate + ' and our Exception coverage is available for $' + rates.exceptionalRate +
+        'Please select the coverage you wish to take.'
 
+    console.log('coverage type -> ' + coverageType)
 
     if (!coverageType) {
         callback(elicitSlot(sessionAttributes,
@@ -252,14 +327,57 @@ function processGetQuoteDetails(intentRequest, callback) {
 
     // delete sessionAttributes.currentReservationPrice;
     // delete sessionAttributes.currentReservation;
-    sessionAttributes.lastConfirmedReservation = quote;
 
 
     callback(close(sessionAttributes, 'Fulfilled',
-        { contentType: 'PlainText', content: 'Thanks, I have placed your reservation.   Please let me know if you would like to book a car rental, or another hotel.' }));
+        {
+            contentType: 'PlainText', content: 'Thank you. We have issued a new policy. The details will be sent to you by email.'
+            // + 'Is there anything else we can do for you.'
+        }));
 
 
 }
+
+/*****************************************************************************/
+/*  This section handles the intent  - GetMemberDetails                      */
+/*****************************************************************************/
+function processGetMemberDetails(intentRequest, callback) {
+
+    console.log('first')
+    // setSessionCache(intentRequest.currentIntent.slots, 'GetCoverageDetails')
+    const slots = intentRequest.currentIntent.slots;
+    const age = intentRequest.currentIntent.slots.age;
+    console.log('second')
+
+    var ages = [];
+    // ages = intentRequest.sessionAttributes.ages;
+
+    // ages.push(age);
+    console.log('third')
+
+    const sessionAttributes = intentRequest.sessionAttributes;
+    sessionAttributes.ages = ages;
+
+    console.log('fourth')
+
+
+    // Load confirmation history and track the current reservation.
+
+    if (sessionAttributes.insuredMembers > ages.length) {
+        callback(elicitSlot(sessionAttributes,
+            `GetMemberDetails`,
+            slots,
+            `age`,
+            { contentType: 'PlainText', content: `Please enter the age of the next member in your group` }
+        ));
+    } else {
+        callback(close(sessionAttributes, 'Fulfilled',
+            { contentType: 'PlainText', content: 'Got the ages of all team members' }));
+
+    }
+
+}
+
 
 
 
@@ -268,71 +386,60 @@ function processGetQuoteDetails(intentRequest, callback) {
 /*****************************************************************************/
 function processGetCoverageDetails(intentRequest, callback) {
 
-
-    const frequency = intentRequest.currentIntent.slots.frequency;
-    const region = intentRequest.currentIntent.slots.region;
-    const travelStartDate = intentRequest.currentIntent.slots.travelStartDate;
-    const travelEndDate = intentRequest.currentIntent.slots.travelEndDate;
-    const insuredCount = intentRequest.currentIntent.slots.insuredCount;
-    const discountType = intentRequest.currentIntent.slots.discountType;
-    const coverageType = intentRequest.currentIntent.slots.coverageType;
-
     const sessionAttributes = intentRequest.sessionAttributes;
 
-    // let Plans = ""
+    const coverageType = intentRequest.currentIntent.slots.coverageType;
 
-    // Load confirmation history and track the current reservation.
-    const quote = String(JSON.stringify({
-        ReservationType: 'GetQuoteDetails',
-        frequency: frequency,
-        region: region,
-        travelStartDate: travelStartDate,
-        travelEndDate: travelEndDate,
-        insuredCount: insuredCount,
-        discountType: discountType,
-        coverageType: coverageType
-    }));
-    sessionAttributes.currentQuote = quote;
+
+    sessionAttributes.previousQuote = sessionAttributes.currentQuote;
+
+    var currentCache = JSON.parse(sessionAttributes.currentQuote)
+
+    sessionAttributes.currentQuote = session.setCache('GetCoverageDetails',
+        currentCache.frequency,
+        currentCache.region,
+        currentCache.travelStartDate,
+        currentCache.travelEndDate,
+        currentCache.insuredCount,
+        currentCache.insuredAges,
+        currentCache.discountType,
+        currentCache.coverageType,
+        '');
+
+
 
     var Plans;
 
     switch (coverageType.toLowerCase()) {
         case 'reduced':
-            Plans = 'The Travel Guard Silver plan is our basic and budget-friendly travel insurance plan, is perfect for business travel and general travel with basic coverage amounts'
+            Plans = 'The Travel Guard Reduced plan is our basic and budget-friendly travel insurance plan, is perfect for business travel and general travel with basic coverage amounts'
             break;
         case 'standard':
-            Plans = 'Travel easy with comprehensive travel insurance provided from the Travel Guard Gold Plan.'
+            Plans = 'The Travel Guard Standard plan is our most common plan that covers most of your needs on a friendly budget.'
             break;
         case 'exceptional':
-            Plans = 'The Travel Guard Platinum plan is our best travel insurance plan with global travel assistance and access to 24/7 travel assistance services.'
+            Plans = 'The Travel Guard Exceptional plan is our best travel insurance plan with global travel assistance and access to 24/7 travel assistance services.'
             break;
         default:
             Plans = 'We currently do not offer this type of coverage. Please call help desk for more details'
     }
 
+    Plans = Plans + ' Please select the coverage you wish to take.'
 
-
-    sessionAttributes.lastConfirmedReservation = quote;
-
-
-    //coverage type is an optional slot. If that is not provided, as for it, along with rates
-    if (!coverageType) {
-        callback(elicitSlot(sessionAttributes,
-            `GetQuoteDetails`,
-            slots,
-            `coverageType`,
-            { contentType: 'PlainText', content: Plans }
-        ));
-
-    } else {
-        callback(close(sessionAttributes, 'Fulfilled',
-            { contentType: 'PlainText', content: `${Plans}` }));
-
-    }
-
-
-
-
+    callback(elicitSlot(sessionAttributes,
+        `GetQuoteDetails`,
+        {
+            "travelEndDate": currentCache.travelEndDate,
+            "coverageType": currentCache.coverageType,
+            "travelStartDate": currentCache.travelStartDate,
+            "discountType": currentCache.discountType,
+            "region": currentCache.region,
+            "frequency": currentCache.frequency,
+            "insuredCount": currentCache.insuredCount
+        },
+        `coverageType`,
+        { contentType: 'PlainText', content: Plans }
+    ));
 }
 
 
@@ -343,18 +450,25 @@ function processGetCoverageDetails(intentRequest, callback) {
  * Called when the user specifies an intent for this skill.
  */
 function dispatch(intentRequest, callback) {
-    console.log(`dispatch userId=${intentRequest.userId}, intentName=${intentRequest.currentIntent.name}`);
-    console.log(' session : ' + JSON.stringify(sessionAttributes))
+    console.log(`dispatch userId=${intentRequest.userId}, 
+                 intentName=${intentRequest.currentIntent.name}`);
 
     const intentName = intentRequest.currentIntent.name;
 
     // Dispatch to your skill's intent handlers
-    if (intentName === 'GetCoverageDetails') {
-        return processGetCoverageDetails(intentRequest, callback);
-    } else if (intentName === 'GetQuoteDetails') {
-        return processGetQuoteDetails(intentRequest, callback);
+
+    switch (intentName) {
+        case 'StartIntent':
+            return processStartIntent(intentRequest, callback);
+        case 'GetCoverageDetails':
+            return processGetCoverageDetails(intentRequest, callback);
+        case 'GetQuoteDetails':
+            return processGetQuoteDetails(intentRequest, callback);
+        case 'GetMemberDetails':
+            return processGetMemberDetails(intentRequest, callback);
+        default:
+            throw new Error(`Intent with name ${intentName} not supported`);
     }
-    throw new Error(`Intent with name ${intentName} not supported`);
 }
 
 // --------------- Main handler -----------------------
