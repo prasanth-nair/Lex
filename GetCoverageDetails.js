@@ -1,3 +1,5 @@
+exports.data =
+
     {
         "messageVersion": "1.0",
         "invocationSource": "DialogCodeHook",

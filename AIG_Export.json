@@ -310,7 +310,7 @@
           },
           {
             "sampleUtterances": [],
-            "slotType": "discountType",
+            "slotType": "groupType",
             "slotTypeVersion": "1",
             "slotConstraint": "Required",
             "valueElicitationPrompt": {
@@ -323,7 +323,7 @@
               "maxAttempts": 2
             },
             "priority": 6,
-            "name": "discountType"
+            "name": "groupType"
           },
           {
             "sampleUtterances": [],
@@ -476,7 +476,7 @@
       },
       {
         "description": "Types of eligible discounts",
-        "name": "discountType",
+        "name": "groupType",
         "version": "1",
         "enumerationValues": [
           {

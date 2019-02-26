@@ -1,4 +1,4 @@
-lambda-local -l aigquote.js -e GetCoverageDetails.json
+lambda-local -l aigquote.js -e GetCoverageDetails1.json
 
 lambda-local -l aigquote.js -e GetQuoteDetails1.json
 
@@ -15,5 +15,5 @@ region
 travelStartDate
 travelEndDate
 insuredCount
-discountType
+groupType
 coverageType

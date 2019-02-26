@@ -606,3 +606,13 @@ exports.handler = (event, context, callback) => {
     }
 };
 
+const input = require('./GetCoverageDetails').data;
+this.handler(input, {}, outputFn);
+
+function outputFn(err, res) {
+    if (err) {
+        console.log('Error occured', JSON.stringify(err));
+        return;
+    }
+    console.log('Returning value from Lambda', JSON.stringify(res));
+}

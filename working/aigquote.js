@@ -62,8 +62,8 @@ function delegate(sessionAttributes, slots) {
 
 
 // Calculation for quote value based on params
-function generateQuote() {
-    session.quoteGenerated = true;
+function generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, groupType) {
+
     return {
         "reducedRate": 80,
         "standardRate": 100,
@@ -149,7 +149,6 @@ function validateQuoteParams(slots) {
         }
     }
 
-
     if (region) {
         if (!isValidRegion(region)) {
             return buildValidationResult(false, 'region', 'I did not understand your travel destination.  Please suggest if you are travelling within Europe or or world wide?');
@@ -220,10 +219,11 @@ function processStartIntent(intentRequest, callback) {
 
     sessionAttributes.currentQuote = session.init();
     sessionAttributes.previousQuote = session.init();
-    session.retrieveSession('StartIntent', sessionAttributes);
+
 
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
+
         {
             "travelEndDate": null,
             "coverageType": null,
@@ -231,8 +231,7 @@ function processStartIntent(intentRequest, callback) {
             "groupType": null,
             "region": null,
             "frequency": null,
-            "insuredCount": null,
-            "privateInsurance": null,
+            "insuredCount": null
         },
         `frequency`,
         {
@@ -240,33 +239,31 @@ function processStartIntent(intentRequest, callback) {
                 ' please suggest if this request is for a single trip or an year round trip.'
         }
     ));
-    return;
 
 }
+
+
 
 /*****************************************************************************/
 /*  This section handles the intent  - GetQuoteDetails                       */
 /*****************************************************************************/
 function processGetQuoteDetails(intentRequest, callback) {
 
+    var rates;
     const slots = intentRequest.currentIntent.slots;
     const sessionAttributes = intentRequest.sessionAttributes;
-    var confirmationStatus = intentRequest.currentIntent.confirmationStatus;
 
-    session.retrieveSession('GetQuoteDetails', sessionAttributes);  //move previous cache values to session 
+    const frequency = intentRequest.currentIntent.slots.frequency;
+    var region = intentRequest.currentIntent.slots.region;
+    const travelStartDate = intentRequest.currentIntent.slots.travelStartDate;
+    const travelEndDate = intentRequest.currentIntent.slots.travelEndDate;
+    const insuredCount = intentRequest.currentIntent.slots.insuredCount;
+    const groupType = intentRequest.currentIntent.slots.groupType;
+    const coverageType = intentRequest.currentIntent.slots.coverageType;
+    const confirmationStatus = intentRequest.currentIntent.confirmationStatus;
 
-    //update session variables with recent slot values
-    session.frequency = intentRequest.currentIntent.slots.frequency;
-    session.region = intentRequest.currentIntent.slots.region;
-    session.travelStartDate = intentRequest.currentIntent.slots.travelStartDate;
-    session.travelEndDate = intentRequest.currentIntent.slots.travelEndDate;
-    session.insuredCount = intentRequest.currentIntent.slots.insuredCount;
-    session.groupType = intentRequest.currentIntent.slots.groupType;
-    session.coverageType = intentRequest.currentIntent.slots.coverageType;
-
-    //move current cache to previous cache; update current cache with recent slot values
-    sessionAttributes.previousQuote = sessionAttributes.currentQuote;
-    sessionAttributes.currentQuote = session.setCache();
+    var currentCache = JSON.parse(sessionAttributes.currentQuote);
+    const insuredAges = currentCache.insuredAges;
 
     const europeanCountries = ['russia', 'germany', 'u.k.', 'france', 'italy', 'spain', 'ukraine', 'poland',
         'romania', 'netherlands', 'belgium', 'greece', 'czech republic', 'portugal',
@@ -276,135 +273,139 @@ function processGetQuoteDetails(intentRequest, callback) {
         'latvia', 'estonia', 'montenegro', 'luxembourg', 'malta', 'iceland', 'andorra',
         'monaco', 'liechtenstein', 'san marino', 'holy see'];
 
-    if (session.region &&
-        session.region.toLowerCase() != 'europe' &&
-        session.region.toLowerCase() != 'world' &&
-        (europeanCountries.indexOf(session.region.toLowerCase()) > -1)) {
-        session.region = 'Europe';
+    if (region &&
+        region.toLowerCase() != 'europe' &&
+        region.toLowerCase() != 'world' &&
+        (europeanCountries.indexOf(region.toLowerCase()) > -1)) {
+        region = 'Europe';
         slots.region = 'Europe';
     }
 
-
+    sessionAttributes.previousQuote = sessionAttributes.currentQuote;
+    sessionAttributes.currentQuote = session.setCache('GetQuoteDetails',
+        frequency,
+        region,
+        travelStartDate,
+        travelEndDate,
+        insuredCount,
+        insuredAges,
+        groupType,
+        coverageType,
+        '');
 
     /****** DialogCodeHook --> This flow is executed for all required slots   ******/
 
     // If the Code Hook is dialog flow, validate the slots. If there are any wrong slot values, re-elicitate the slot
 
-
-    //Validate if the slots provided by use is valid
-    const validationResult = validateQuoteParams(slots);
-    if (!validationResult.isValid) {
-        // const slots = intentRequest.currentIntent.slots;
-        slots[`${validationResult.violatedSlot}`] = null;
-        callback(elicitSlot(sessionAttributes,
-            intentRequest.currentIntent.name,
-            slots,
-            validationResult.violatedSlot,
-            validationResult.message
-        ));
-        return;
-    }
-
-    console.log('no errors');
-    // if the client selects a sigle trip, elicit the start and end dates
-
-    if (session.frequency != null &&
-        session.frequency.toLowerCase() == 'single' &&
-        session.travelStartDate == null) {
-        callback(elicitSlot(sessionAttributes,
-            `GetQuoteDetails`,
-            slots,
-            `travelStartDate`,
-            { contentType: 'PlainText', content: `Please select the start date for your travel` }
-        ));
-        return;
-    }
-
-    console.log('single or multi trip')
-
-    if (session.frequency != null &&
-        session.frequency.toLowerCase() == 'single' &&
-        session.travelStartDate && session.travelEndDate == null) {
-        callback(elicitSlot(sessionAttributes,
-            `GetQuoteDetails`,
-            slots,
-            `travelEndDate`,
-            { contentType: 'PlainText', content: `Please select the return date for your travel` }
-        ));
-        return;
-    }
-
-    console.log('single or multi trip 2')
-
-
-    // Switch intent to collect the age of first traveller
-    while (session.insuredCount > session.insuredAges.length) {
-        callback(elicitSlot(sessionAttributes,
-            `GetMemberDetails`,
-            { "age": null },
-            `age`,
-            {
-                contentType: 'PlainText',
-                content: 'Please enter the age of the first passenger'
-            }
-        ));
-        return;
-    }
-
-
-
-
-
-    // Delegate to Lex to select the next course of action. i.e. elicit next required slot by Lex
-
     if (intentRequest.invocationSource === 'DialogCodeHook') {
-        callback(delegate(sessionAttributes, intentRequest.currentIntent.slots));
-        return;
-    }  //end of if DialogCodeHook
 
-
-    // TODO --> ELICIT GROUP TYPE HERE
-
-    // if all the slots needed for coverage calculation is provided, 
-    // then only calculate the rate and ask for coverage type
-
-    if (session.frequency && session.region && session.insuredCount) {
-        session.quotePrice = generateQuote();
-        var ratesNotification = 'You have 3 options to choose from. The rates for Reduced coverage is $' + session.quotePrice.reducedRate +
-            '. Our most poular Standard coverage is $' + session.quotePrice.standardRate + ' and our Exception coverage is available for $' + session.quotePrice.exceptionalRate +
-            ' Please select the coverage you wish to take.';
-        var rateToShow;
-
-
-        if (!session.coverageType) {
+        //Validate if the slots provided by use is valid
+        const validationResult = validateQuoteParams(slots);
+        if (!validationResult.isValid) {
+            // const slots = intentRequest.currentIntent.slots;
+            slots[`${validationResult.violatedSlot}`] = null;
             callback(elicitSlot(sessionAttributes,
                 intentRequest.currentIntent.name,
                 slots,
-                `coverageType`,
-                { contentType: 'PlainText', content: ratesNotification }
-                // JSON.stringify(ratesNotification)
+                validationResult.violatedSlot,
+                validationResult.message
             ));
             return;
-
         }
+
+        // if the client selects a sigle trip, elicit the start and end dates
+
+        if (frequency.toLowerCase() == 'single' && !travelStartDate) {
+            callback(elicitSlot(sessionAttributes,
+                `GetQuoteDetails`,
+                slots,
+                `travelStartDate`,
+                { contentType: 'PlainText', content: `Please select the start date for your travel` }
+            ));
+            return;
+        }
+
+        if (frequency.toLowerCase() == 'single' && travelStartDate && !travelEndDate) {
+            callback(elicitSlot(sessionAttributes,
+                `GetQuoteDetails`,
+                slots,
+                `travelEndDate`,
+                { contentType: 'PlainText', content: `Please select the return date for your travel` }
+            ));
+            return;
+        }
+
+
+
+        // Switch intent to collect the age of first traveller
+        while (insuredCount > insuredAges.length) {
+            callback(elicitSlot(sessionAttributes,
+                `GetMemberDetails`,
+                { "age": null },
+                `age`,
+                {
+                    contentType: 'PlainText',
+                    content: 'Please enter the age of the next passenger'
+                }
+            ));
+            return;
+        }
+
+
+
+
+        // Delegate to Lex to select the next course of action. i.e. elicit next required slot by Lex
+
+        callback(delegate(sessionAttributes, intentRequest.currentIntent.slots));
+        return;
     }
 
-    console.log('not here')
-    if (intentRequest.invocationSource === 'FulfillmentCodeHook' & session.quoteGenerated) {
+
+
+
+
+    /****** FulfillmentCodeHook --> This flow is executed after all required slots are filled   ******/
+
+
+    if (intentRequest.invocationSource === 'FulfillmentCodeHook') {
+        // rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, groupType);
+
+
+        // if all the slots needed for coverage calculation is provided, 
+        // then only calculate the rate and ask for coverage type
+
+        if (frequency && region && insuredCount && groupType) {
+            rates = generateQuote(frequency, region, travelStartDate, travelEndDate, insuredCount, groupType);
+            var ratesNotification = 'You have 3 options to choose from. The rates for Reduced coverage is $' + rates.reducedRate +
+                '. Our most poular Standard coverage is $' + rates.standardRate + ' and our Exception coverage is available for $' + rates.exceptionalRate +
+                'Please select the coverage you wish to take.';
+            var rateToShow;
+
+
+            if (!coverageType) {
+                callback(elicitSlot(sessionAttributes,
+                    intentRequest.currentIntent.name,
+                    slots,
+                    `coverageType`,
+                    { contentType: 'PlainText', content: ratesNotification }
+                    // JSON.stringify(ratesNotification)
+                ));
+
+            }
+        }
+
 
         switch (confirmationStatus) {
             case 'None':
-                console.log('None');
-                console.log(JSON.stringify(session));
-                switch (session.coverageType.toLowerCase()) {
+                switch (coverageType.toLowerCase()) {
                     case 'reduced':
-                        rateToShow = session.quotePrice.reducedRate;
+                        rateToShow = rates.reducedRate;
                         break;
                     case 'standard':
-                        rateToShow = session.quotePrice.standardRate;
+                        rateToShow = rates.standardRate;
                         break;
                     case 'exceptional':
-                        rateToShow = session.quotePrice.exceptionalRate;
+                        rateToShow = rates.exceptionalRate;
                         break;
                 }
                 callback(confirmIntent(sessionAttributes,
@@ -412,7 +413,7 @@ function processGetQuoteDetails(intentRequest, callback) {
                     slots,
                     {
                         contentType: 'PlainText',
-                        content: `You have selected ${session.coverageType} coverage for a total premium of €${rateToShow}. Please confirm `
+                        content: `You have selected ${coverageType} coverage for a total premium of €${rateToShow}. Please confirm `
                     }));
                 break;
             case 'Confirmed':
@@ -434,8 +435,7 @@ function processGetQuoteDetails(intentRequest, callback) {
 
     }
 
-    console.log('again')
-    return;
+
 
 }
 
@@ -444,21 +444,29 @@ function processGetQuoteDetails(intentRequest, callback) {
 /*****************************************************************************/
 function processGetMemberDetails(intentRequest, callback) {
 
-
+    const age = intentRequest.currentIntent.slots.age;
     const sessionAttributes = intentRequest.sessionAttributes;
 
-    session.retrieveSession('GetMemberDetails', sessionAttributes);  //move previous cache values to session 
+    var currentCache = JSON.parse(sessionAttributes.currentQuote);
+    //const insuredAges = 
+    currentCache.insuredAges.push(age);
 
-    //update session variables with recent slot values
-    session.insuredAges.push(intentRequest.currentIntent.slots.age);
+    // insuredAges.push(age);
 
-
-    //move current cache to previous cache; update current cache with recent slot values
     sessionAttributes.previousQuote = sessionAttributes.currentQuote;
-    sessionAttributes.currentQuote = session.setCache();
+    sessionAttributes.currentQuote = session.setCache('GetMemberDetails',
+        currentCache.frequency,
+        currentCache.region,
+        currentCache.travelStartDate,
+        currentCache.travelEndDate,
+        currentCache.insuredCount,
+        currentCache.insuredAges,
+        currentCache.groupType,
+        currentCache.coverageType,
+        '');
 
 
-    while (session.insuredCount > session.insuredAges.length) {
+    while (currentCache.insuredCount > currentCache.insuredAges.length) {
         callback(elicitSlot(sessionAttributes,
             `GetMemberDetails`,
             { "age": null },
@@ -471,21 +479,20 @@ function processGetMemberDetails(intentRequest, callback) {
         return;
     }
 
-    //Once we collect age of all passengers, return control to GetQuoteDetails
+
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
         {
-            "travelEndDate": session.travelEndDate,
-            "coverageType": session.coverageType,
-            "travelStartDate": session.travelStartDate,
-            "groupType": session.groupType,
-            "region": session.region,
-            "frequency": session.frequency,
-            "insuredCount": session.insuredCount,
-            "privateInsurance": session.privateInsurance
+            "travelEndDate": currentCache.travelEndDate,
+            "coverageType": currentCache.coverageType,
+            "travelStartDate": currentCache.travelStartDate,
+            "groupType": currentCache.groupType,
+            "region": currentCache.region,
+            "frequency": currentCache.frequency,
+            "insuredCount": currentCache.insuredCount
         },
-        `privateInsurance`,
-        { contentType: 'PlainText', content: 'Do you have private insurance?' }
+        `region`,
+        { contentType: 'PlainText', content: 'Are you planning to travel within Europe?' }
     ));
 
     return;
@@ -502,21 +509,31 @@ function processGetMemberDetails(intentRequest, callback) {
 /*****************************************************************************/
 function processGetCoverageDetails(intentRequest, callback) {
 
-
-    // const slots = intentRequest.currentIntent.slots;
     const sessionAttributes = intentRequest.sessionAttributes;
 
-    session.retrieveSession('GetCoverageDetails', sessionAttributes);  //move previous cache values to session 
+    const coverageType = intentRequest.currentIntent.slots.coverageType;
 
-    //move current cache to previous cache; update current cache with recent slot values
+
     sessionAttributes.previousQuote = sessionAttributes.currentQuote;
-    sessionAttributes.currentQuote = session.setCache();
 
-    const coverageToExplain = intentRequest.currentIntent.slots.coverageType;
+    var currentCache = JSON.parse(sessionAttributes.currentQuote);
+
+    sessionAttributes.currentQuote = session.setCache('GetCoverageDetails',
+        currentCache.frequency,
+        currentCache.region,
+        currentCache.travelStartDate,
+        currentCache.travelEndDate,
+        currentCache.insuredCount,
+        currentCache.insuredAges,
+        currentCache.groupType,
+        currentCache.coverageType,
+        '');
+
+
 
     var Plans;
 
-    switch (coverageToExplain.toLowerCase()) {
+    switch (coverageType.toLowerCase()) {
         case 'reduced':
             Plans = 'The Travel Guard Reduced plan is our basic and budget-friendly travel insurance plan, is perfect for business travel and general travel with basic coverage amounts';
             break;
@@ -535,14 +552,13 @@ function processGetCoverageDetails(intentRequest, callback) {
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
         {
-            "travelEndDate": session.travelEndDate,
-            "coverageType": session.coverageType,
-            "travelStartDate": session.travelStartDate,
-            "groupType": session.groupType,
-            "region": session.region,
-            "frequency": session.frequency,
-            "insuredCount": session.insuredCount,
-            "privateInsurance": session.privateInsurance
+            "travelEndDate": currentCache.travelEndDate,
+            "coverageType": currentCache.coverageType,
+            "travelStartDate": currentCache.travelStartDate,
+            "groupType": currentCache.groupType,
+            "region": currentCache.region,
+            "frequency": currentCache.frequency,
+            "insuredCount": currentCache.insuredCount
         },
         `coverageType`,
         { contentType: 'PlainText', content: Plans }
@@ -571,10 +587,7 @@ function dispatch(intentRequest, callback) {
         case 'GetCoverageDetails':
             return processGetCoverageDetails(intentRequest, callback);
         case 'GetQuoteDetails':
-            console.log('before dispatch');
-
             return processGetQuoteDetails(intentRequest, callback);
-            console.log('after dispatch');
         case 'GetMemberDetails':
             return processGetMemberDetails(intentRequest, callback);
         default:
@@ -605,4 +618,3 @@ exports.handler = (event, context, callback) => {
         callback(err);
     }
 };
-

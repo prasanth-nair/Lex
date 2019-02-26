@@ -1,10 +1,10 @@
 {
     "messageVersion": "1.0",
     "invocationSource": "FulfillmentCodeHook",
-    "userId": "0bi2gojjuuvxx92qjmomixqbhdaon5v8",
+    "userId": "oq3udstbpx3ecl18j6d7jg5o0txap8b7",
     "sessionAttributes": {
-        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"Yearly\",\"region\":\"europe\",\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":null,\"insuredCount\":\"1\",\"insuredAges\":[\"10\"],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{},\"privateInsurance\":null}",
-        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"Yearly\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"1\",\"insuredAges\":[\"10\"],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{},\"privateInsurance\":null}"
+        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"Yearly\",\"region\":\"europe\",\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"3\",\"insuredAges\":[\"20\",\"30\",\"19\"],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{}}",
+        "previousQuote": "{\"intentName\":\"GetMemberDetails\",\"frequency\":\"Yearly\",\"region\":null,\"travelStartDate\":null,\"travelEndDate\":null,\"insuredCount\":\"3\",\"insuredAges\":[\"20\",\"30\",\"19\"],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{}}"
     },
     "requestAttributes": null,
     "bot": {
@@ -18,12 +18,11 @@
         "slots": {
             "travelEndDate": null,
             "coverageType": null,
+            "travelStartDate": null,
             "groupType": null,
-            "travelStartDate": "2019-02-25",
             "region": "europe",
-            "privateInsurance": "Yes",
             "frequency": "Yearly",
-            "insuredCount": "1"
+            "insuredCount": "3"
         },
         "slotDetails": {
             "travelEndDate": {
@@ -34,19 +33,18 @@
                 "resolutions": [],
                 "originalValue": null
             },
+            "travelStartDate": {
+                "resolutions": [],
+                "originalValue": null
+            },
             "groupType": {
                 "resolutions": [],
                 "originalValue": null
             },
-            "travelStartDate": {
-                "resolutions": [],
-                "originalValue": "next monday"
-            },
-            "region": null,
-            "privateInsurance": {
+            "region": {
                 "resolutions": [
                     {
-                        "value": "Yes"
+                        "value": "europe"
                     }
                 ],
                 "originalValue": "yes"
@@ -57,5 +55,5 @@
         "confirmationStatus": "None",
         "sourceLexNLUIntentInterpretation": null
     },
-    "inputTranscript": "next monday"
+    "inputTranscript": "yes"
 }

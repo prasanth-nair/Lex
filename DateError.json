@@ -3,8 +3,8 @@
     "invocationSource": "DialogCodeHook",
     "userId": "zkbpul97fy3eyq3jpv0js0y9umpf7n7a",
     "sessionAttributes": {
-        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":\"2019-02-25\",\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}",
-        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":null,\"insuredCount\":null,\"insuredAges\":[],\"discountType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}"
+        "currentQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":\"2019-02-25\",\"insuredCount\":null,\"insuredAges\":[],\"groupType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}",
+        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"single\",\"region\":null,\"travelStartDate\":\"2019-02-25\",\"travelEndDate\":null,\"insuredCount\":null,\"insuredAges\":[],\"groupType\":null,\"coverageType\":null,\"suggestedRegion\":\"\"}"
     },
     "requestAttributes": null,
     "bot": {
@@ -19,7 +19,7 @@
             "travelEndDate": "XXXX-02-29",
             "coverageType": null,
             "travelStartDate": "2019-02-25",
-            "discountType": null,
+            "groupType": null,
             "region": null,
             "frequency": "single",
             "insuredCount": null
@@ -37,7 +37,7 @@
                 "resolutions": [],
                 "originalValue": "2/20 to 2/25"
             },
-            "discountType": {
+            "groupType": {
                 "resolutions": [],
                 "originalValue": null
             },
