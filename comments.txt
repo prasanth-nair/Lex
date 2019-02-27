@@ -1,13 +1,13 @@
-lambda-local -l aigquote.js -e TestData/GetMemberDetails.json
+lambda-local -l index.js -e TestData/GetMemberDetails.json
 
-lambda-local -l aigquote.js -e GetQuoteDetails1.json
+lambda-local -l index.js -e TestData/GetQuoteDetails1.json
 
-lambda-local -l aigquote.js -e StartIntent.json
-
-
+lambda-local -l index.js -e TestData/senti.json
 
 
-lambda-local -l aigquote.js -h handler -e payload.json
+
+
+lambda-local -l index.js -h handler -e payload.json
 
 
 frequency

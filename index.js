@@ -1,6 +1,7 @@
 'use strict';
 const session = require('./session');
 const sentiment = require('./sentiment');
+const msg = require('./messages');
 
 /**
  *  Ths is a bot for collecting the user information for providing an insurance
@@ -507,34 +508,32 @@ function processGetMemberDetails(intentRequest, callback) {
 /*****************************************************************************/
 /*  This section handles the intent  - processLiveAgentHelp                  */
 /*****************************************************************************/
-function processprocessLiveAgentHelp(intentRequest, callback) {
-
+function processLiveAgentHelp(intentRequest, callback) {
 
     const sessionAttributes = intentRequest.sessionAttributes;
     var confirmationStatus = intentRequest.currentIntent.confirmationStatus;
 
-    session.retrieveSession('GetMemberDetails', sessionAttributes);  //move previous cache values to session 
-
+    session.retrieveSession('processLiveAgentHelp', sessionAttributes);  //move previous cache values to session 
 
     //move current cache to previous cache; update current cache with recent slot values
     sessionAttributes.previousQuote = sessionAttributes.currentQuote;
     sessionAttributes.currentQuote = session.setCache();
 
-    callback(close(sessionAttributes, 'Fulfilled',
-        {
-            contentType: 'PlainText',
-            content: 'Thank you. We have issued a new policy. The details will be sent to you by email.'
-        }));
+    if (confirmationStatus == 'Confirmed') {
+        callback(close(sessionAttributes, 'Fulfilled',
+            {
+                contentType: 'PlainText',
+                content: msg.FULFILMENT_CLOSURE_MESSAGE
+            }));
+    } else {
+        // TO DO --> SEND BACK TO PREVIOUS ACTION
 
-    callback(close(sessionAttributes, 'Fulfilled',
-        {
-            contentType: 'PlainText',
-            content: 'Thank you for choosing AIG. Have a nice day!'
-        }));
-
-
-
-
+        callback(close(sessionAttributes, 'Fulfilled',
+            {
+                contentType: 'PlainText',
+                content: msg.FULFILMENT_CLOSURE_MESSAGE
+            }));
+    }
 
 }
 
@@ -599,39 +598,53 @@ function dispatch(intentRequest, callback) {
 
     // check sentiment and take action
 
-    const ESCALATION_INTENT_MESSAGE = "Seems that you are having troubles with our service. Would you like to be transferred to the associate?"
-    const FULFILMENT_CLOSURE_MESSAGE = "Seems that you are having troubles with our service. Let me transfer you to the associate."
 
-    var senti = sentiment(intentRequest.inputTranscript);
-    senti = 'NEGATIVE';
-    if (senti == 'NEGATIVE') {
-        callback(confirmIntent(intentRequest.sessionAttributes,
-            'LiveAgentHelp',
-            {},
-            {
-                contentType: 'PlainText',
-                content: ESCALATION_INTENT_MESSAGE
-            }));
-        return;
-    }
+    // var senti = sentiment(intentRequest.inputTranscript);
 
 
-    // Dispatch to your skill's intent handlers
+    sentiment(intentRequest.inputTranscript)
+        .then((res) => {
+            console.log('promise resolved', res)
+            if (res.Sentiment == 'NEGATIVE') {
+                callback(confirmIntent(intentRequest.sessionAttributes,
+                    'LiveAgentHelp',
+                    {},
+                    {
+                        contentType: 'PlainText',
+                        content: msg.ESCALATION_INTENT_MESSAGE
+                    }));
+                return;
+            } else {
+                // Dispatch to your skill's intent handlers
 
-    switch (intentName) {
-        case 'StartIntent':
-            return processStartIntent(intentRequest, callback);
-        case 'GetCoverageDetails':
-            return processGetCoverageDetails(intentRequest, callback);
-        case 'GetQuoteDetails':
-            return processGetQuoteDetails(intentRequest, callback);
-        case 'GetMemberDetails':
-            return processGetMemberDetails(intentRequest, callback);
-        case 'LiveAgentHelp':
-            return processLiveAgentHelp(intentRequest, callback);
-        default:
-            throw new Error(`Intent with name ${intentName} not supported`);
-    }
+                switch (intentName) {
+                    case 'StartIntent':
+                        return processStartIntent(intentRequest, callback);
+                    case 'GetCoverageDetails':
+                        return processGetCoverageDetails(intentRequest, callback);
+                    case 'GetQuoteDetails':
+                        return processGetQuoteDetails(intentRequest, callback);
+                    case 'GetMemberDetails':
+                        return processGetMemberDetails(intentRequest, callback);
+                    case 'LiveAgentHelp':
+                        return processLiveAgentHelp(intentRequest, callback);
+                    default:
+                        throw new Error(`Intent with name ${intentName} not supported`);
+                }
+            }
+
+
+        })
+        .catch((err) => {
+            console.log('error : ', err)
+        }
+
+        );
+
+
+
+
+
 }
 
 // --------------- Main handler -----------------------
