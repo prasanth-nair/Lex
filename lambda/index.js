@@ -1,5 +1,6 @@
 'use strict';
 const session = require('./session');
+const sentiment = require('./sentiment');
 
 /**
  *  Ths is a bot for collecting the user information for providing an insurance
@@ -11,7 +12,8 @@ const session = require('./session');
 
 
 function elicitSlot(sessionAttributes, intentName, slots, slotToElicit, message) {
-    return {
+    var data =
+    {
         sessionAttributes,
         dialogAction: {
             type: 'ElicitSlot',
@@ -19,41 +21,67 @@ function elicitSlot(sessionAttributes, intentName, slots, slotToElicit, message)
             slots,
             slotToElicit,
             message,
-        },
-    };
+        }
+    }
+    // console.log('Lex Response', data);
+    return data;
 }
 
+
+// function elicitSlot(sessionAttributes, intentName, slots, slotToElicit, message) {
+
+//     return {
+//         sessionAttributes,
+//         dialogAction: {
+//             type: 'ElicitSlot',
+//             intentName,
+//             slots,
+//             slotToElicit,
+//             message,
+//         },
+//     };
+// }
+
 function confirmIntent(sessionAttributes, intentName, slots, message) {
-    return {
+    var data =
+    {
         sessionAttributes,
         dialogAction: {
             type: 'ConfirmIntent',
             intentName,
             slots,
             message,
-        },
-    };
+        }
+    }
+    // console.log('Lex Response', data);
+    return data;
 }
 
 function close(sessionAttributes, fulfillmentState, message) {
-    return {
+    var data =
+    {
         sessionAttributes,
         dialogAction: {
             type: 'Close',
             fulfillmentState,
             message,
         },
-    };
+    }
+    // console.log('Lex Response', data);
+    return data;
 }
 
 function delegate(sessionAttributes, slots) {
-    return {
+    var data =
+    {
         sessionAttributes,
         dialogAction: {
             type: 'Delegate',
             slots,
         },
-    };
+    }
+    // console.log('Lex Response', data);
+    return data;
 }
 
 // ---------------- Helper Functions --------------------------------------------------
@@ -94,9 +122,6 @@ function isValidInsuredCount(insuredCount) {
     return !(isNaN(insuredCount));
 }
 
-function isValidAge(age) {
-    return !(isNaN(age));
-}
 
 function isValidCoverageType(coverageType) {
     const coverageTypes = ['reduced', 'standard', 'exceptional'];
@@ -207,6 +232,7 @@ function validateQuoteParams(slots) {
 
 }
 
+
 // --------------- Process Intents -----------------------
 
 
@@ -222,18 +248,21 @@ function processStartIntent(intentRequest, callback) {
     sessionAttributes.previousQuote = session.init();
     session.retrieveSession('StartIntent', sessionAttributes);
 
+
+
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
-        {
-            "travelEndDate": null,
-            "coverageType": null,
-            "travelStartDate": null,
-            "groupType": null,
-            "region": null,
-            "frequency": null,
-            "insuredCount": null,
-            "privateInsurance": null,
-        },
+        session.GetQuoteDetailsSlot,
+        // {
+        //     "travelEndDate": null,
+        //     "coverageType": null,
+        //     "travelStartDate": null,
+        //     "groupType": null,
+        //     "region": null,
+        //     "frequency": null,
+        //     "insuredCount": null,
+        //     "privateInsurance": null,
+        // },
         `frequency`,
         {
             contentType: 'PlainText', content: 'Welcome to the AIG Travel chat bot. In order to process your quote,' +
@@ -305,7 +334,6 @@ function processGetQuoteDetails(intentRequest, callback) {
         return;
     }
 
-    console.log('no errors');
     // if the client selects a sigle trip, elicit the start and end dates
 
     if (session.frequency != null &&
@@ -320,7 +348,6 @@ function processGetQuoteDetails(intentRequest, callback) {
         return;
     }
 
-    console.log('single or multi trip')
 
     if (session.frequency != null &&
         session.frequency.toLowerCase() == 'single' &&
@@ -333,9 +360,6 @@ function processGetQuoteDetails(intentRequest, callback) {
         ));
         return;
     }
-
-    console.log('single or multi trip 2')
-
 
     // Switch intent to collect the age of first traveller
     while (session.insuredCount > session.insuredAges.length) {
@@ -389,13 +413,10 @@ function processGetQuoteDetails(intentRequest, callback) {
         }
     }
 
-    console.log('not here')
     if (intentRequest.invocationSource === 'FulfillmentCodeHook' & session.quoteGenerated) {
 
         switch (confirmationStatus) {
             case 'None':
-                console.log('None');
-                console.log(JSON.stringify(session));
                 switch (session.coverageType.toLowerCase()) {
                     case 'reduced':
                         rateToShow = session.quotePrice.reducedRate;
@@ -431,12 +452,8 @@ function processGetQuoteDetails(intentRequest, callback) {
             default:
                 break;
         }
-
     }
-
-    console.log('again')
     return;
-
 }
 
 /*****************************************************************************/
@@ -446,16 +463,22 @@ function processGetMemberDetails(intentRequest, callback) {
 
 
     const sessionAttributes = intentRequest.sessionAttributes;
+    const age = intentRequest.currentIntent.slots.age;
+    var msg;
 
     session.retrieveSession('GetMemberDetails', sessionAttributes);  //move previous cache values to session 
 
-    //update session variables with recent slot values
-    session.insuredAges.push(intentRequest.currentIntent.slots.age);
-
+    if ((isNaN(age) || (age < 0) || (age > 100))) {
+        msg = 'Please enter a valid age for the passenger';
+    } else {
+        session.insuredAges.push(age);
+        msg = 'Please enter the age of the next passenger';
+    }
 
     //move current cache to previous cache; update current cache with recent slot values
     sessionAttributes.previousQuote = sessionAttributes.currentQuote;
     sessionAttributes.currentQuote = session.setCache();
+
 
 
     while (session.insuredCount > session.insuredAges.length) {
@@ -465,7 +488,7 @@ function processGetMemberDetails(intentRequest, callback) {
             `age`,
             {
                 contentType: 'PlainText',
-                content: 'Please enter the age of the next passenger'
+                content: msg
             }
         ));
         return;
@@ -474,28 +497,12 @@ function processGetMemberDetails(intentRequest, callback) {
     //Once we collect age of all passengers, return control to GetQuoteDetails
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
-        {
-            "travelEndDate": session.travelEndDate,
-            "coverageType": session.coverageType,
-            "travelStartDate": session.travelStartDate,
-            "groupType": session.groupType,
-            "region": session.region,
-            "frequency": session.frequency,
-            "insuredCount": session.insuredCount,
-            "privateInsurance": session.privateInsurance
-        },
+        session.GetQuoteDetailsSlot,
         `privateInsurance`,
         { contentType: 'PlainText', content: 'Do you have private insurance?' }
     ));
-
     return;
-
-
-
 }
-
-
-
 
 /*****************************************************************************/
 /*  This section handles the intent  - GetCoverageDetails                    */
@@ -534,16 +541,7 @@ function processGetCoverageDetails(intentRequest, callback) {
 
     callback(elicitSlot(sessionAttributes,
         `GetQuoteDetails`,
-        {
-            "travelEndDate": session.travelEndDate,
-            "coverageType": session.coverageType,
-            "travelStartDate": session.travelStartDate,
-            "groupType": session.groupType,
-            "region": session.region,
-            "frequency": session.frequency,
-            "insuredCount": session.insuredCount,
-            "privateInsurance": session.privateInsurance
-        },
+        session.GetQuoteDetailsSlot,
         `coverageType`,
         { contentType: 'PlainText', content: Plans }
     ));
@@ -563,6 +561,24 @@ function dispatch(intentRequest, callback) {
 
     const intentName = intentRequest.currentIntent.name;
 
+    // check sentiment and take action
+
+    const ESCALATION_INTENT_MESSAGE = "Seems that you are having troubles with our service. Would you like to be transferred to the associate?"
+    const FULFILMENT_CLOSURE_MESSAGE = "Seems that you are having troubles with our service. Let me transfer you to the associate."
+
+    var senti = sentiment(intentRequest.inputTranscript);
+    senti = 'NEGATIVE';
+    if (senti == 'NEGATIVE') {
+        callback(confirmIntent(intentRequest.sessionAttributes,
+            'LiveAgentHelp',
+            {},
+            {
+                contentType: 'PlainText',
+                content: ESCALATION_INTENT_MESSAGE
+            }));
+    }
+
+
     // Dispatch to your skill's intent handlers
 
     switch (intentName) {
@@ -571,10 +587,7 @@ function dispatch(intentRequest, callback) {
         case 'GetCoverageDetails':
             return processGetCoverageDetails(intentRequest, callback);
         case 'GetQuoteDetails':
-            console.log('before dispatch');
-
             return processGetQuoteDetails(intentRequest, callback);
-            console.log('after dispatch');
         case 'GetMemberDetails':
             return processGetMemberDetails(intentRequest, callback);
         default:

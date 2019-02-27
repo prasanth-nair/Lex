@@ -16,7 +16,7 @@
     "currentIntent": {
         "name": "GetMemberDetails",
         "slots": {
-            "age": "20"
+            "age": "-1"
         },
         "slotDetails": {
             "age": {

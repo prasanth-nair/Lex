@@ -1,0 +1,31 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "rk6ehqh6gfpgph3xlswfcmxf3fi1cq00",
+    "sessionAttributes": {
+        "currentQuote": "{\"intentName\":\"GetMemberDetails\",\"frequency\":\"Single\",\"region\":\"europe\",\"travelStartDate\":\"2019-03-04\",\"travelEndDate\":\"2019-03-08\",\"insuredCount\":\"2\",\"insuredAges\":[\"20\"],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{},\"privateInsurance\":null}",
+        "previousQuote": "{\"intentName\":\"GetQuoteDetails\",\"frequency\":\"Single\",\"region\":\"europe\",\"travelStartDate\":\"2019-03-04\",\"travelEndDate\":\"2019-03-08\",\"insuredCount\":\"2\",\"insuredAges\":[],\"groupType\":null,\"coverageType\":null,\"quoteGenerated\":false,\"quotePrice\":{},\"privateInsurance\":null}"
+    },
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "GetMemberDetails",
+        "slots": {
+            "age": "30"
+        },
+        "slotDetails": {
+            "age": {
+                "resolutions": [],
+                "originalValue": "30"
+            }
+        },
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "30"
+}

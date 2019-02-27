@@ -1,0 +1,21 @@
+{
+    "messageVersion": "1.0",
+    "invocationSource": "FulfillmentCodeHook",
+    "userId": "j7c2etv44b63dimovawe3zy6ovhwmg91",
+    "sessionAttributes": {},
+    "requestAttributes": null,
+    "bot": {
+        "name": "AIG",
+        "alias": "$LATEST",
+        "version": "$LATEST"
+    },
+    "outputDialogMode": "Text",
+    "currentIntent": {
+        "name": "StartIntent",
+        "slots": {},
+        "slotDetails": {},
+        "confirmationStatus": "None",
+        "sourceLexNLUIntentInterpretation": null
+    },
+    "inputTranscript": "start"
+}
